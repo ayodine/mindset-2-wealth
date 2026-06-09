@@ -83,6 +83,11 @@
   padding: 0;
 }
 
+::selection {
+  background-color: var(--theme-accent);
+  color: #ffffff;
+}
+
 body {
   font-family: var(--font-family);
   background-color: var(--theme-bg);

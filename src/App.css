@@ -312,6 +312,7 @@
 
 .dropdown-item:hover, .dropdown-item.highlighted {
   background-color: var(--theme-accent);
+  color: white;
 }
 
 /* Contact Details group */
