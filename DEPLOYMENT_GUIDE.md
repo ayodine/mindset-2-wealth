@@ -1,72 +1,65 @@
 # Typeform Clone: Developer & Deployment Guide
 
-This document serves as the memory and blueprint for how this project was built, how it communicates with the database, and how to update it in the future.
+This document serves as the guide for how this project is structured, how it communicates with the database, and how to deploy it.
 
 ## Tech Stack
 - **Frontend**: React (Vite SPA)
 - **Styling**: Vanilla CSS (`App.css` and `index.css`)
 - **Database**: Supabase PostgreSQL
-- **Hosting**: Netlify via GitHub CI/CD
 
 ---
 
 ## The Database (Supabase)
 
 ### Row Level Security (RLS)
-The most critical part of this application's architecture is the Supabase RLS configuration. Since this is a client-side only React app, we expose the **Publishable `anon` Key** to the world. 
+The most critical part of this application's database security is the Supabase RLS configuration. Since this is a client-side only React app, we expose the **Publishable `anon` Key** to the client.
 
-To prevent hackers from changing data, the `form_submissions` table has RLS enabled with very specific rules:
-1. The `anon` role is granted `INSERT` and `SELECT` permissions on the table.
-2. The RLS policy explicitly allows the `anon` role to `INSERT` new rows.
-3. *Crucial fix*: Since the React code does `await supabase...insert().select()`, the database *must* also allow the `anon` role to `SELECT` the row it just created.
+To prevent unauthorized access, the `form_submissions` table has RLS enabled with write-only policies:
+1. The public `anon` role is granted ONLY `INSERT` permissions on the table.
+2. The RLS policy explicitly allows the `anon` role to `INSERT` new rows, but blocks all reading or editing of entries to prevent database scraping.
+3. The React code submits data using `.insert()` without `.select()`, ensuring standard database interactions operate securely on public clients.
 
-If you ever need to recreate the database, the exact bulletproof SQL script is saved in `supabase/create_table.sql`.
+The Postgres SQL table schema setup script is saved in `supabase/create_table.sql`.
 
 ---
 
-## How to Make Changes and Update the Live Site
+## How to Make Changes and Deploy
 
-The site is hosted on **Netlify**, which is directly connected to the `ayodine/typefrom-clone` GitHub repository. You do not need to manually build or deploy anything.
+You can deploy the built application to any static web hosting provider (such as Firebase Hosting, Vercel, Cloudflare Pages, or AWS S3/CloudFront).
 
 **Step-by-step update process:**
-1. Open the code locally and make your changes (e.g., editing `src/questions.js` or `src/App.jsx`).
-2. Test it locally by running the dev server:
+1. Make code changes locally (e.g., editing `src/questions.js` or `src/App.jsx`).
+2. Test changes locally:
    ```bash
    npm run dev
    ```
-3. Once you are happy with the changes, open your terminal and push to GitHub:
+3. Build the production bundle:
    ```bash
-   git add .
-   git commit -m "Describe what you changed here"
-   git push
+   npm run build
    ```
-4. Within seconds, Netlify will detect the push, build the app, and update the live URL automatically.
+   This generates the static assets in the `dist/` directory.
+4. Deploy the contents of the `dist/` directory to your static hosting provider.
+   *(Ensure your hosting configuration serves `index.html` for all routes to support Single Page Application client-side routing fallback)*
 
 ---
 
-## Environment Variables & Configs
+## Environment Variables
 
 ### Local Development (`.env`)
-To run the app locally on `localhost`, you must have an `.env` file in the root directory containing:
+To run the app locally, you must have an `.env` file in the root directory containing:
 ```
 VITE_SUPABASE_URL=https://[YOUR_ID].supabase.co
 VITE_SUPABASE_ANON_KEY=eyJhbG...
 ```
-*(Note: Because of the `vite.config.js`, all prefix variables MUST start with `VITE_`)*
 
-### Production (Netlify)
-The `.env` file is intentionally ignored by `.gitignore` so your secrets don't end up public on GitHub. Therefore, **Netlify gets its variables from its own UI**. 
-If you ever create a new Supabase project, you must update the variables in:
-**Netlify Dashboard → Site configuration → Environment variables**.
-
-### Netlify Config (`netlify.toml`)
-Because this is a Single Page Application (SPA), we need to tell Netlify to redirect all traffic to `index.html`. This configuration is saved in `netlify.toml` in the root directory. Do not delete this file.
+### Production Setup
+Do not commit your `.env` file to version control. Add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` as production environment variables in your hosting provider's dashboard configuration.
 
 ---
 
-## Notable Features & Upgrades
-- **Calendly Integration**: On the final success screen (rendered in `src/App.jsx` when `submitted === true`), there is a "Book Your Mentorship Call" button. It is currently hardcoded to `https://calendly.com/swingtradefx1/`. If your Calendly link changes in the future, search for that URL in `App.jsx` and replace it.
-- **Dynamic Custom Country Dropdown**: The first question uses a specialized autocomplete dropdown. If a user types a country that is not in the predefined list (e.g., "Antarctica"), the code dynamically generates an option `Use "Antarctica"`. Pressing Enter accepts this exact string and saves it directly to the database.
-- **Swingtradefxacademy Branding**: A permanent branding header containing the logo (`public/fav_dark.svg`) and brand title lives in the top-left corner of the app, ensuring context is never lost during the multi-step form. 
-- **CSS Design System Architecture**: The entire application's styling uses a robust CSS Custom Properties (Variables) architecture stored in `src/index.css`. 
-  - **Themes**: All colors are mapped to semantic tokens like `--theme-bg` or `--theme-accent`. By default, it runs in **Dark Mode**. To instantly switch the entire application to **Light Mode**, simply add `data-theme="light"` to the `<html lang="en">` tag inside `index.html`.
+## Notable Features
+- **Calendly Integration**: On the final success screen (rendered in `src/App.jsx` when `submitted === true`), there is a "Book Your Mentorship Call" button. It is currently hardcoded to `https://calendly.com/swingtradefx1/20min`. If your Calendly link changes in the future, search for that URL in `App.jsx` and replace it.
+- **Dynamic Custom Country Dropdown**: The first question uses a specialized autocomplete dropdown. If a user types a country that is not in the predefined list, the code dynamically generates an option `Use "[Input]"`.
+- **Swingtradefxacademy Branding**: A permanent branding header containing the logo (`public/fav_dark.svg`) and brand title lives in the top-left corner of the app, ensuring context is never lost during the multi-step form.
+- **CSS Design System Architecture**: The entire application's styling uses a robust CSS Custom Properties (Variables) architecture stored in `src/index.css`.
+  - **Themes**: All colors are mapped to semantic tokens like `--theme-bg` or `--theme-accent`. By default, it runs in **Dark Mode**. To switch the entire application to **Light Mode**, add `data-theme="light"` to the `<html lang="en">` tag inside `index.html`.

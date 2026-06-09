@@ -46,18 +46,18 @@ export async function submitFormResponse(answers) {
 
     const { data, error } = await supabase
       .from('form_submissions')
-      .insert([payload])
-      .select();
+      .insert([payload]);
 
     if (error) {
       console.error('Supabase insert error:', error);
       return { success: false, error: error.message };
     }
 
-    console.log('Form submitted successfully:', data);
+    console.log('Form submitted successfully');
 
     try {
       // Dispatch background email notification without blocking the UI
+      const web3FormsKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "d11ddcb6-f66f-4d5f-88ba-9b6126b6ff37";
       fetch("https://api.web3forms.com/submit", {
           method: "POST",
           headers: { 
@@ -65,7 +65,7 @@ export async function submitFormResponse(answers) {
               'Accept': 'application/json'
           },
           body: JSON.stringify({
-             access_key: "d11ddcb6-f66f-4d5f-88ba-9b6126b6ff37",
+             access_key: web3FormsKey,
              subject: `New Mentorship Lead: ${payload.first_name || ''} ${payload.last_name || ''}`,
              from_name: "Mentorship Application",
              replyto: payload.email || undefined, /* Allows clicking "Reply" in gmail to direct reply to the lead */
@@ -94,3 +94,4 @@ export async function submitFormResponse(answers) {
     return { success: false, error: err.message };
   }
 }
+

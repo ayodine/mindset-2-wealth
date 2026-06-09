@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronUp, ChevronDown, Check, Loader2 } from 'lucide-react';
 import { questions } from './questions';
 import { submitFormResponse } from './supabase';
@@ -205,6 +205,17 @@ function ContactInput({ fields, value, onChangeValue, onDone, submitting, submit
 
 /* ──────────────────────── Main App ──────────────────────── */
 
+const BrandingHeader = () => (
+  <div className="branding-header">
+    <img 
+      src="/fav_dark.svg" 
+      alt="Logo" 
+      className="branding-logo" 
+    />
+    <span className="branding-text">Swingtradefxacademy</span>
+  </div>
+);
+
 function App() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [answers, setAnswers] = useState({});
@@ -214,15 +225,8 @@ function App() {
   const containerRef = useRef(null);
   const totalQ = questions.length;
 
-  const goNext = () => setActiveIndex(i => Math.min(i + 1, totalQ - 1));
-  const goPrev = () => setActiveIndex(i => Math.max(i - 1, 0));
-
-  const BrandingHeader = () => (
-    <div className="branding-header">
-      <img src="/fav_dark.svg" alt="Logo" className="branding-logo" />
-      <span className="branding-text">Swingtradefxacademy</span>
-    </div>
-  );
+  const goNext = useCallback(() => setActiveIndex(i => Math.min(i + 1, totalQ - 1)), [totalQ]);
+  const goPrev = useCallback(() => setActiveIndex(i => Math.max(i - 1, 0)), []);
 
   // Keyboard nav (arrows only when not in input)
   useEffect(() => {
@@ -234,7 +238,7 @@ function App() {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, []);
+  }, [goNext, goPrev]);
 
   // Wheel debounce
   useEffect(() => {
@@ -249,7 +253,7 @@ function App() {
     const el = containerRef.current;
     if (el) el.addEventListener('wheel', handler, { passive: true });
     return () => { if (el) el.removeEventListener('wheel', handler); };
-  }, []);
+  }, [goNext, goPrev]);
 
   const setAnswer = (id, val) => setAnswers(prev => ({ ...prev, [id]: val }));
 
