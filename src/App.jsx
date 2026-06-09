@@ -534,6 +534,26 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
                   <p style={{ color: 'var(--theme-text-secondary)', fontSize: 18, margin: 0, maxWidth: '500px', lineHeight: '1.6' }}>
                     We have received your workshop inquiry details. A member of our team will review the information and reach out to you within 24–48 hours to discuss potential custom programs and booking details.
                   </p>
+                  
+                  <button 
+                    className="submit-button" 
+                    style={{ 
+                      marginTop: '32px', 
+                      width: 'auto', 
+                      minWidth: '280px',
+                      padding: '16px 40px', 
+                      fontSize: '18px',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      alignSelf: 'center',
+                      boxShadow: '0 4px 14px 0 rgba(15, 61, 46, 0.3)'
+                    }}
+                    onClick={() => window.open('https://calendly.com/thefisayo/coaching', '_blank')}
+                  >
+                    Book Your Strategy Call
+                  </button>
                 </>
               )}
             </div>
