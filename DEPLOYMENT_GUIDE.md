@@ -58,8 +58,8 @@ Do not commit your `.env` file to version control. Add `VITE_SUPABASE_URL` and `
 ---
 
 ## Notable Features
-- **Calendly Integration**: On the final success screen (rendered in `src/App.jsx` when `submitted === true`), there is a "Book Your Mentorship Call" button. It is currently hardcoded to `https://calendly.com/swingtradefx1/20min`. If your Calendly link changes in the future, search for that URL in `App.jsx` and replace it.
+- **Calendly Integration**: On the final success screen (rendered in `src/App.jsx` when `submitted === true`), there is a "Book Your Strategy Call" button. It is currently configured with a placeholder URL `https://calendly.com/YOUR_CALENDLY_HERE`. If your Calendly link changes in the future, search for that URL in `App.jsx` and replace it.
 - **Dynamic Custom Country Dropdown**: The first question uses a specialized autocomplete dropdown. If a user types a country that is not in the predefined list, the code dynamically generates an option `Use "[Input]"`.
-- **Swingtradefxacademy Branding**: A permanent branding header containing the logo (`public/fav_dark.svg`) and brand title lives in the top-left corner of the app, ensuring context is never lost during the multi-step form.
+- **Wealth Roadmap Questionnaire form Branding**: A permanent branding header containing the logo (`public/M2W-favicon.svg`) and brand title lives in the top-left corner of the app, ensuring context is never lost during the multi-step form.
 - **CSS Design System Architecture**: The entire application's styling uses a robust CSS Custom Properties (Variables) architecture stored in `src/index.css`.
   - **Themes**: All colors are mapped to semantic tokens like `--theme-bg` or `--theme-accent`. By default, it runs in **Dark Mode**. To switch the entire application to **Light Mode**, add `data-theme="light"` to the `<html lang="en">` tag inside `index.html`.
