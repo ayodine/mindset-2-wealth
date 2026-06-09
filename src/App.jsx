@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { ChevronUp, ChevronDown, Check, Loader2 } from 'lucide-react';
-import { questions } from './questions';
-import { submitFormResponse } from './supabase';
+import { roadmapQuestions, workshopQuestions } from './questions';
+import { submitFormResponse, submitWorkshopResponse } from './supabase';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -30,7 +30,7 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-/* ──────────────────────── Input Components (inline) ──────────────────────── */
+/* ──────────────────────── Input Components ──────────────────────── */
 
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
@@ -183,13 +183,46 @@ function DropdownInput({ options, value, onSelect }) {
   );
 }
 
+function TextInput({ type = 'text', value, onChangeValue, onDone, placeholder = "Type your answer here..." }) {
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (ref.current) ref.current.focus({ preventScroll: true });
+    }, 700);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div className="text-input-wrapper">
+      <input
+        ref={ref}
+        type={type}
+        className="base-text-input"
+        placeholder={placeholder}
+        value={value || ''}
+        onChange={e => onChangeValue(e.target.value)}
+        onKeyDown={e => {
+          if (e.key === 'Enter') { e.preventDefault(); if (value?.trim()) onDone(); }
+        }}
+      />
+      {value?.trim() && (
+        <div className="ok-button-container" style={{ marginTop: '24px' }}>
+          <button className="ok-button" onClick={onDone}>OK <Check size={20} /></button>
+          <span className="press-enter">press <strong>Enter ↵</strong></span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function LongTextInput({ value, onChangeValue, onDone }) {
   const ref = useRef(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       if (ref.current) ref.current.focus({ preventScroll: true });
-    }, 700); // Wait for CSS transition to finish
+    }, 700);
     return () => clearTimeout(timer);
   }, []);
 
@@ -215,6 +248,59 @@ function LongTextInput({ value, onChangeValue, onDone }) {
       {value?.trim() && (
         <div className="ok-button-container">
           <button className="ok-button" onClick={onDone}>OK <Check size={20} /></button>
+          <span className="press-enter">press <strong>Enter ↵</strong></span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CheckboxesInput({ options, value = [], onSelect }) {
+  const handleOptionClick = (option) => {
+    let newValue;
+    if (value.includes(option)) {
+      newValue = value.filter(val => val !== option);
+    } else {
+      newValue = [...value, option];
+    }
+    onSelect(newValue);
+  };
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === 'Enter' && value.length > 0) {
+        e.preventDefault();
+        onSelect(value, true);
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [value, onSelect]);
+
+  return (
+    <div className="mc-input-container">
+      <ul className="multiple-choice-list">
+        {options.map((option, i) => {
+          const isSelected = value.includes(option);
+          return (
+            <li
+              key={i}
+              className={'choice-item' + (isSelected ? ' selected' : '')}
+              onClick={() => handleOptionClick(option)}
+              style={{ '--index': i }}
+            >
+              <div className="choice-letter">{LETTERS[i]}</div>
+              <div className="choice-text" style={{ flex: 1 }}>{option}</div>
+              <div className={`checkbox-indicator ${isSelected ? 'selected' : ''}`}>
+                {isSelected && <Check size={16} />}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      {value.length > 0 && (
+        <div className="ok-button-container" style={{ marginTop: '24px' }}>
+          <button className="ok-button" onClick={() => onSelect(value, true)}>OK <Check size={20} /></button>
           <span className="press-enter">press <strong>Enter ↵</strong></span>
         </div>
       )}
@@ -262,20 +348,20 @@ function ContactInput({ fields, value, onChangeValue, onDone, submitting, submit
   );
 }
 
-/* ──────────────────────── Main App ──────────────────────── */
+/* ──────────────────────── Reusable Form Component ──────────────────────── */
 
-const BrandingHeader = () => (
+const BrandingHeader = ({ title }) => (
   <div className="branding-header">
     <img 
       src="/M2W-favicon.svg" 
       alt="Logo" 
       className="branding-logo" 
     />
-    <span className="branding-text">Wealth Roadmap Questionnaire form</span>
+    <span className="branding-text">{title}</span>
   </div>
 );
 
-function App() {
+function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [submitted, setSubmitted] = useState(false);
@@ -287,7 +373,7 @@ function App() {
   const goNext = useCallback(() => setActiveIndex(i => Math.min(i + 1, totalQ - 1)), [totalQ]);
   const goPrev = useCallback(() => setActiveIndex(i => Math.max(i - 1, 0)), []);
 
-  // Keyboard nav (arrows only when not in input)
+  // Keyboard nav
   useEffect(() => {
     const handler = (e) => {
       const tag = document.activeElement?.tagName;
@@ -319,7 +405,7 @@ function App() {
   const handleSubmit = async () => {
     setSubmitting(true);
     setSubmitError(null);
-    const result = await submitFormResponse(answers);
+    const result = await onSubmit(answers);
     setSubmitting(false);
     if (result.success) {
       setSubmitted(true);
@@ -331,36 +417,49 @@ function App() {
   if (submitted) {
     return (
       <div className="app-container">
-        <BrandingHeader />
+        <BrandingHeader title={formTitle} />
         <div className="questions-wrapper">
           <div className="question-section active">
             <div className="question-content" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
-              <div className="question-title" style={{ justifyContent: 'center', marginBottom: 0 }}>
-                <div>Thanks for completing this form! 🎉</div>
-              </div>
-              <p style={{ color: 'var(--text-secondary)', fontSize: 18, margin: 0 }}>
-                You're one step closer to consistent profitability. Let's get you on the calendar.
-              </p>
-              
-              <button 
-                className="submit-button" 
-                style={{ 
-                  marginTop: '32px', 
-                  width: 'auto', 
-                  minWidth: '280px',
-                  padding: '16px 40px', 
-                  fontSize: '18px',
-                  borderRadius: '12px',
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  alignSelf: 'center',
-                  boxShadow: '0 4px 14px 0 rgba(15, 61, 46, 0.3)'
-                }}
-                onClick={() => window.open('https://calendly.com/YOUR_CALENDLY_HERE', '_blank')}
-              >
-                Book Your Strategy Call
-              </button>
+              {type === 'roadmap' ? (
+                <>
+                  <div className="question-title" style={{ justifyContent: 'center', marginBottom: 0 }}>
+                    <div>Thanks for completing this form! 🎉</div>
+                  </div>
+                  <p style={{ color: 'var(--theme-text-secondary)', fontSize: 18, margin: 0 }}>
+                    You're one step closer to consistent profitability. Let's get you on the calendar.
+                  </p>
+                  
+                  <button 
+                    className="submit-button" 
+                    style={{ 
+                      marginTop: '32px', 
+                      width: 'auto', 
+                      minWidth: '280px',
+                      padding: '16px 40px', 
+                      fontSize: '18px',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      alignSelf: 'center',
+                      boxShadow: '0 4px 14px 0 rgba(15, 61, 46, 0.3)'
+                    }}
+                    onClick={() => window.open('https://calendly.com/YOUR_CALENDLY_HERE', '_blank')}
+                  >
+                    Book Your Strategy Call
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="question-title" style={{ justifyContent: 'center', marginBottom: 0 }}>
+                    <div>Thank you for your inquiry! 📅</div>
+                  </div>
+                  <p style={{ color: 'var(--theme-text-secondary)', fontSize: 18, margin: 0, maxWidth: '500px', lineHeight: '1.6' }}>
+                    We have received your workshop inquiry details. A member of our team will review the information and reach out to you within 24–48 hours to discuss potential custom programs and booking details.
+                  </p>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -373,7 +472,7 @@ function App() {
 
   return (
     <div className="app-container" ref={containerRef}>
-      <BrandingHeader />
+      <BrandingHeader title={formTitle} />
       <div className="questions-wrapper">
         {questions.map((q, idx) => {
           const isActive = idx === activeIndex;
@@ -388,7 +487,6 @@ function App() {
                   <div>{q.title}</div>
                 </div>
 
-                {/* Render ONLY for active question. Each type is rendered independently (different key prefix) */}
                 {isActive && q.type === 'dropdown' && (
                   <DropdownInput
                     key={'drop-' + q.id}
@@ -405,12 +503,41 @@ function App() {
                     onSelect={(v) => { setAnswer(q.id, v); setTimeout(goNext, 400); }}
                   />
                 )}
+                {isActive && q.type === 'checkboxes' && (
+                  <CheckboxesInput
+                    key={'check-' + q.id}
+                    options={q.options}
+                    value={answers[q.id]}
+                    onSelect={(v, done) => {
+                      setAnswer(q.id, v);
+                      if (done) goNext();
+                    }}
+                  />
+                )}
+                {isActive && q.type === 'short_text' && (
+                  <TextInput
+                    key={'st-' + q.id}
+                    value={answers[q.id]}
+                    onChangeValue={(v) => setAnswer(q.id, v)}
+                    onDone={goNext}
+                  />
+                )}
+                {isActive && q.type === 'email' && (
+                  <TextInput
+                    key={'email-' + q.id}
+                    type="email"
+                    placeholder="Enter your email address"
+                    value={answers[q.id]}
+                    onChangeValue={(v) => setAnswer(q.id, v)}
+                    onDone={goNext}
+                  />
+                )}
                 {isActive && q.type === 'long_text' && (
                   <LongTextInput
                     key={'lt-' + q.id}
                     value={answers[q.id]}
                     onChangeValue={(v) => setAnswer(q.id, v)}
-                    onDone={goNext}
+                    onDone={idx === totalQ - 1 ? handleSubmit : goNext}
                   />
                 )}
                 {isActive && q.type === 'contact_group' && (
@@ -443,12 +570,35 @@ function App() {
   );
 }
 
+/* ──────────────────────── Wrapped App with Router ──────────────────────── */
+
 export default function WrappedApp() {
   return (
     <ErrorBoundary>
       <Routes>
-        {/* Public form */}
-        <Route path="/" element={<App />} />
+        {/* Public forms */}
+        <Route 
+          path="/" 
+          element={
+            <QuestionnaireForm 
+              questions={roadmapQuestions} 
+              onSubmit={submitFormResponse} 
+              formTitle="Wealth Roadmap Questionnaire Form" 
+              type="roadmap" 
+            />
+          } 
+        />
+        <Route 
+          path="/workshop" 
+          element={
+            <QuestionnaireForm 
+              questions={workshopQuestions} 
+              onSubmit={submitWorkshopResponse} 
+              formTitle="Financial Wellness Workshop Inquiry Form" 
+              type="workshop" 
+            />
+          } 
+        />
 
         {/* Admin routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
@@ -461,7 +611,7 @@ export default function WrappedApp() {
           }
         />
 
-        {/* Catch-all — redirect to form */}
+        {/* Catch-all — redirect to roadmap form */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </ErrorBoundary>

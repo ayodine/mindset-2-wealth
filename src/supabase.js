@@ -95,3 +95,89 @@ export async function submitFormResponse(answers) {
   }
 }
 
+/**
+ * Submit a workshop inquiry response to Supabase.
+ * 
+ * @param {Object} answers - The form answers keyed by question ID
+ * @returns {{ success: boolean, error?: string }}
+ */
+export async function submitWorkshopResponse(answers) {
+  if (!supabase) {
+    console.warn('Supabase not configured. Logging workshop inquiry locally.');
+    console.log('Workshop Inquiry submission:', answers);
+    return { success: true };
+  }
+
+  try {
+    const payload = {
+      full_name: answers.w1 || null,
+      organization_name: answers.w2 || null,
+      job_title: answers.w3 || null,
+      email: answers.w4 || null,
+      website_link: answers.w5 || null,
+      location: answers.w6 || null,
+      expected_attendees: answers.w7 || null,
+      session_type: answers.w8 || null,
+      topics: answers.w9 || [], // w9 is an array of strings
+      format: answers.w10 || null,
+      event_date_time: answers.w11 || null,
+      has_budget: answers.w12 || null,
+      audience_struggles: answers.w13 || null,
+      success_outcome: answers.w14 || null,
+      referral_source: answers.w15 || null,
+    };
+
+    const { data, error } = await supabase
+      .from('workshop_submissions')
+      .insert([payload]);
+
+    if (error) {
+      console.error('Supabase insert error (workshop):', error);
+      return { success: false, error: error.message };
+    }
+
+    console.log('Workshop Inquiry submitted successfully');
+
+    try {
+      // Dispatch background email notification without blocking the UI
+      const web3FormsKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "d11ddcb6-f66f-4d5f-88ba-9b6126b6ff37";
+      fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: { 
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+             access_key: web3FormsKey,
+             subject: `New Workshop Inquiry: ${payload.full_name || ''} - ${payload.organization_name || ''}`,
+             from_name: "Workshop Inquiry Form",
+             replyto: payload.email || undefined,
+             "Full Name": payload.full_name,
+             "Organization": payload.organization_name,
+             "Job Title": payload.job_title,
+             "Email": payload.email,
+             "Website or Organization Link": payload.website_link,
+             "Location": payload.location,
+             "Expected Attendees": payload.expected_attendees,
+             "Session Type": payload.session_type,
+             "Topics": payload.topics ? payload.topics.join(', ') : '',
+             "Preferred Format": payload.format,
+             "Date & Time": payload.event_date_time,
+             "Has Budget": payload.has_budget,
+             "Audience Struggles": payload.audience_struggles,
+             "Success Outcome": payload.success_outcome,
+             "How They Heard": payload.referral_source
+          })
+      }).catch(e => console.error("Email notification error:", e));
+    } catch (emailErr) {
+      console.warn("Attempted to send mail failed locally", emailErr);
+    }
+
+    return { success: true, data };
+  } catch (err) {
+    console.error('Unexpected error submitting workshop inquiry:', err);
+    return { success: false, error: err.message };
+  }
+}
+
+

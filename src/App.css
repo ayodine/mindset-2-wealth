@@ -424,3 +424,24 @@
   border-bottom: 1px solid var(--theme-accent);
   padding: 2px 0;
 }
+
+/* Checkbox Indicator styling */
+.checkbox-indicator {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--theme-border);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  transition: all 0.2s;
+  background-color: transparent;
+}
+
+.choice-item.selected .checkbox-indicator {
+  border-color: var(--theme-accent);
+  background-color: var(--theme-accent);
+  color: white;
+}
+

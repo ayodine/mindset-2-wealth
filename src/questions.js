@@ -1,4 +1,4 @@
-export const questions = [
+export const roadmapQuestions = [
   {
     id: "q1",
     type: "dropdown",
@@ -113,6 +113,133 @@ export const questions = [
       { id: "lastName", label: "Last Name", type: "text" },
       { id: "email", label: "Email Address", type: "email" },
       { id: "phone", label: "Phone Number", type: "tel" }
+    ]
+  }
+];
+
+export const workshopQuestions = [
+  {
+    id: "w1",
+    type: "short_text",
+    title: "Full Name",
+    required: true
+  },
+  {
+    id: "w2",
+    type: "short_text",
+    title: "Organization / Institution Name",
+    required: true
+  },
+  {
+    id: "w3",
+    type: "short_text",
+    title: "Job Title / Role",
+    required: true
+  },
+  {
+    id: "w4",
+    type: "email",
+    title: "Email Address",
+    required: true
+  },
+  {
+    id: "w5",
+    type: "short_text",
+    title: "Website or Organization Link",
+    required: false
+  },
+  {
+    id: "w6",
+    type: "short_text",
+    title: "Location: City / Province / Country",
+    required: true
+  },
+  {
+    id: "w7",
+    type: "multiple_choice",
+    title: "Approximately how many attendees are you expecting?",
+    required: true,
+    options: ["Under 25", "25–50", "50–100", "100–250", "250+"]
+  },
+  {
+    id: "w8",
+    type: "multiple_choice",
+    title: "What type of session are you interested in?",
+    required: true,
+    options: [
+      "One-Time Workshop",
+      "Multi-Day Series",
+      "Financial Wellness Week",
+      "Keynote Speaking",
+      "Corporate Wellness Program",
+      "Panel Discussion",
+      "Custom Partnership",
+      "Not Sure Yet"
+    ]
+  },
+  {
+    id: "w9",
+    type: "checkboxes",
+    title: "Which topics are you most interested in? (Select all that apply)",
+    required: true,
+    options: [
+      "Money in Canada 101",
+      "Budgeting & Cash Flow",
+      "Debt Management",
+      "Beginner Investing",
+      "Building Long-Term Wealth",
+      "Wealth Mindset & Financial Habits",
+      "Financial Planning for Young Professionals",
+      "Financial Wellness for Employees",
+      "Generational Wealth Building",
+      "Financial Confidence & Decision-Making",
+      "Other"
+    ]
+  },
+  {
+    id: "w10",
+    type: "multiple_choice",
+    title: "Preferred Format",
+    required: true,
+    options: ["Virtual", "In-Person", "Hybrid"]
+  },
+  {
+    id: "w11",
+    type: "short_text",
+    title: "Date and time of event",
+    required: false
+  },
+  {
+    id: "w12",
+    type: "multiple_choice",
+    title: "Do you currently have a budget allocated for this initiative?",
+    required: true,
+    options: ["Yes", "No", "Seeking sponsorship/funding"]
+  },
+  {
+    id: "w13",
+    type: "long_text",
+    title: "Is there anything specific your audience is currently struggling with financially?",
+    required: false
+  },
+  {
+    id: "w14",
+    type: "long_text",
+    title: "What outcome would make this workshop/program successful for your audience?",
+    required: false
+  },
+  {
+    id: "w15",
+    type: "multiple_choice",
+    title: "How did you hear about Mindset 2 Wealth?",
+    required: true,
+    options: [
+      "Instagram",
+      "LinkedIn",
+      "Word of mouth / Referral",
+      "Attended a past Event / Workshop",
+      "Google / Search Engine",
+      "Other"
     ]
   }
 ];

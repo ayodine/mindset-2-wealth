@@ -90,6 +90,8 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.15s;
+  width: 100%;
+  text-align: left;
 }
 .sidebar-nav-item:hover {
   background: rgba(255,255,255,0.08);
