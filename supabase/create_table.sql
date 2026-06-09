@@ -64,11 +64,10 @@ GRANT USAGE ON SCHEMA public TO anon, authenticated;
 GRANT INSERT ON form_submissions TO anon;
 GRANT ALL ON form_submissions TO authenticated;
 
--- Policy: Allow anonymous and authenticated inserts (public form)
+-- Policy: Allow all users to insert submissions (public form)
 CREATE POLICY "allow_anon_insert"
   ON form_submissions
   FOR INSERT
-  TO anon, authenticated
   WITH CHECK (true);
 
 -- Policy: Allow authenticated users to read all submissions

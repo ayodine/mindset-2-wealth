@@ -41,11 +41,10 @@ GRANT USAGE ON SCHEMA public TO anon, authenticated;
 GRANT INSERT ON workshop_submissions TO anon;
 GRANT ALL ON workshop_submissions TO authenticated;
 
--- Policy: Allow anonymous and authenticated inserts (public form)
+-- Policy: Allow all users to insert submissions (public form)
 CREATE POLICY "allow_anon_insert_workshop"
   ON workshop_submissions
   FOR INSERT
-  TO anon, authenticated
   WITH CHECK (true);
 
 -- Policy: Allow authenticated users to read all submissions
