@@ -34,7 +34,7 @@ class ErrorBoundary extends React.Component {
 
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
-function MCInput({ options, value, onSelect }) {
+function MCInput({ options, value, onSelect, isLast, onSubmit, submitting, submitError }) {
   const isCustomOther = value && !options.includes(value);
   const [otherText, setOtherText] = useState(isCustomOther ? value : '');
   const [showOtherInput, setShowOtherInput] = useState(isCustomOther);
@@ -98,17 +98,29 @@ function MCInput({ options, value, onSelect }) {
           );
         })}
       </ul>
-      {showOtherInput && otherText.trim() && (
+      {showOtherInput && otherText.trim() && !isLast && (
         <div className="ok-button-container" style={{ marginTop: '24px' }}>
           <button className="ok-button" onClick={handleOtherSubmit}>OK <Check size={20} /></button>
           <span className="press-enter">press <strong>Enter ↵</strong></span>
+        </div>
+      )}
+      {value && isLast && (
+        <div className="ok-button-container" style={{ marginTop: '24px', flexDirection: 'column', alignItems: 'flex-start', gap: '12px' }}>
+          {submitError && <div className="submit-error">{submitError}</div>}
+          <button className="submit-button" onClick={onSubmit} disabled={submitting} style={{ marginTop: 0 }}>
+            {submitting ? (
+              <><Loader2 size={20} className="spinner" /> Submitting...</>
+            ) : (
+              'Submit form'
+            )}
+          </button>
         </div>
       )}
     </div>
   );
 }
 
-function DropdownInput({ options, value, onSelect }) {
+function DropdownInput({ options, value, onSelect, isLast, onSubmit, submitting, submitError }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState(value || '');
   const [hl, setHl] = useState(0);
@@ -174,16 +186,28 @@ function DropdownInput({ options, value, onSelect }) {
         </div>
       )}
       {value && !open && (
-        <div className="ok-button-container">
-          <button className="ok-button" onClick={() => onSelect(value)}>OK <Check size={20} /></button>
-          <span className="press-enter">press <strong>Enter ↵</strong></span>
+        <div className="ok-button-container" style={isLast ? { flexDirection: 'column', alignItems: 'flex-start', gap: '12px', marginTop: '24px' } : {}}>
+          {isLast && submitError && <div className="submit-error">{submitError}</div>}
+          <button 
+            className={isLast ? "submit-button" : "ok-button"} 
+            onClick={isLast ? onSubmit : () => onSelect(value)} 
+            disabled={isLast && submitting}
+            style={isLast ? { marginTop: 0 } : {}}
+          >
+            {isLast ? (
+              submitting ? <><Loader2 size={20} className="spinner" /> Submitting...</> : 'Submit form'
+            ) : (
+              <>{'OK'} <Check size={20} /></>
+            )}
+          </button>
+          {!isLast && <span className="press-enter">press <strong>Enter ↵</strong></span>}
         </div>
       )}
     </div>
   );
 }
 
-function TextInput({ type = 'text', value, onChangeValue, onDone, placeholder = "Type your answer here..." }) {
+function TextInput({ type = 'text', value, onChangeValue, onDone, placeholder = "Type your answer here...", isLast, onSubmit, submitting, submitError }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -203,20 +227,32 @@ function TextInput({ type = 'text', value, onChangeValue, onDone, placeholder = 
         value={value || ''}
         onChange={e => onChangeValue(e.target.value)}
         onKeyDown={e => {
-          if (e.key === 'Enter') { e.preventDefault(); if (value?.trim()) onDone(); }
+          if (e.key === 'Enter') { e.preventDefault(); if (value?.trim()) { if (isLast) onSubmit(); else onDone(); } }
         }}
       />
       {value?.trim() && (
-        <div className="ok-button-container" style={{ marginTop: '24px' }}>
-          <button className="ok-button" onClick={onDone}>OK <Check size={20} /></button>
-          <span className="press-enter">press <strong>Enter ↵</strong></span>
+        <div className="ok-button-container" style={isLast ? { flexDirection: 'column', alignItems: 'flex-start', gap: '12px', marginTop: '24px' } : { marginTop: '24px' }}>
+          {isLast && submitError && <div className="submit-error">{submitError}</div>}
+          <button 
+            className={isLast ? "submit-button" : "ok-button"} 
+            onClick={isLast ? onSubmit : onDone} 
+            disabled={isLast && submitting}
+            style={isLast ? { marginTop: 0 } : {}}
+          >
+            {isLast ? (
+              submitting ? <><Loader2 size={20} className="spinner" /> Submitting...</> : 'Submit form'
+            ) : (
+              <>{'OK'} <Check size={20} /></>
+            )}
+          </button>
+          {!isLast && <span className="press-enter">press <strong>Enter ↵</strong></span>}
         </div>
       )}
     </div>
   );
 }
 
-function LongTextInput({ value, onChangeValue, onDone }) {
+function LongTextInput({ value, onChangeValue, onDone, isLast, onSubmit, submitting, submitError }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -239,23 +275,35 @@ function LongTextInput({ value, onChangeValue, onDone }) {
           e.target.style.height = e.target.scrollHeight + 'px';
         }}
         onKeyDown={e => {
-          if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (value?.trim()) onDone(); }
+          if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (value?.trim()) { if (isLast) onSubmit(); else onDone(); } }
         }}
         rows={1}
         style={{ resize: 'none', overflow: 'hidden', minHeight: 40 }}
       />
       <div className="long-text-hint"><strong>Shift ⇧</strong> + <strong>Enter ↵</strong> to make a line break</div>
       {value?.trim() && (
-        <div className="ok-button-container">
-          <button className="ok-button" onClick={onDone}>OK <Check size={20} /></button>
-          <span className="press-enter">press <strong>Enter ↵</strong></span>
+        <div className="ok-button-container" style={isLast ? { flexDirection: 'column', alignItems: 'flex-start', gap: '12px', marginTop: '24px' } : { marginTop: '24px' }}>
+          {isLast && submitError && <div className="submit-error">{submitError}</div>}
+          <button 
+            className={isLast ? "submit-button" : "ok-button"} 
+            onClick={isLast ? onSubmit : onDone} 
+            disabled={isLast && submitting}
+            style={isLast ? { marginTop: 0 } : {}}
+          >
+            {isLast ? (
+              submitting ? <><Loader2 size={20} className="spinner" /> Submitting...</> : 'Submit form'
+            ) : (
+              <>{'OK'} <Check size={20} /></>
+            )}
+          </button>
+          {!isLast && <span className="press-enter">press <strong>Enter ↵</strong></span>}
         </div>
       )}
     </div>
   );
 }
 
-function CheckboxesInput({ options, value = [], onSelect }) {
+function CheckboxesInput({ options, value = [], onSelect, isLast, onSubmit, submitting, submitError }) {
   const handleOptionClick = (option) => {
     let newValue;
     if (value.includes(option)) {
@@ -270,12 +318,12 @@ function CheckboxesInput({ options, value = [], onSelect }) {
     const handler = (e) => {
       if (e.key === 'Enter' && value.length > 0) {
         e.preventDefault();
-        onSelect(value, true);
+        if (isLast) onSubmit(); else onSelect(value, true);
       }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [value, onSelect]);
+  }, [value, onSelect, isLast, onSubmit]);
 
   return (
     <div className="mc-input-container">
@@ -299,9 +347,21 @@ function CheckboxesInput({ options, value = [], onSelect }) {
         })}
       </ul>
       {value.length > 0 && (
-        <div className="ok-button-container" style={{ marginTop: '24px' }}>
-          <button className="ok-button" onClick={() => onSelect(value, true)}>OK <Check size={20} /></button>
-          <span className="press-enter">press <strong>Enter ↵</strong></span>
+        <div className="ok-button-container" style={isLast ? { flexDirection: 'column', alignItems: 'flex-start', gap: '12px', marginTop: '24px' } : { marginTop: '24px' }}>
+          {isLast && submitError && <div className="submit-error">{submitError}</div>}
+          <button 
+            className={isLast ? "submit-button" : "ok-button"} 
+            onClick={isLast ? onSubmit : () => onSelect(value, true)} 
+            disabled={isLast && submitting}
+            style={isLast ? { marginTop: 0 } : {}}
+          >
+            {isLast ? (
+              submitting ? <><Loader2 size={20} className="spinner" /> Submitting...</> : 'Submit form'
+            ) : (
+              <>{'OK'} <Check size={20} /></>
+            )}
+          </button>
+          {!isLast && <span className="press-enter">press <strong>Enter ↵</strong></span>}
         </div>
       )}
     </div>
@@ -494,12 +554,12 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
                     value={answers[q.id]}
                     onSelect={(v) => {
                       setAnswer(q.id, v);
-                      if (idx === totalQ - 1) {
-                        handleSubmit();
-                      } else {
-                        goNext();
-                      }
+                      if (idx !== totalQ - 1) goNext();
                     }}
+                    isLast={idx === totalQ - 1}
+                    onSubmit={handleSubmit}
+                    submitting={submitting}
+                    submitError={submitError}
                   />
                 )}
                 {isActive && q.type === 'multiple_choice' && (
@@ -509,12 +569,12 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
                     value={answers[q.id]}
                     onSelect={(v) => {
                       setAnswer(q.id, v);
-                      if (idx === totalQ - 1) {
-                        setTimeout(handleSubmit, 400);
-                      } else {
-                        setTimeout(goNext, 400);
-                      }
+                      if (idx !== totalQ - 1) setTimeout(goNext, 400);
                     }}
+                    isLast={idx === totalQ - 1}
+                    onSubmit={handleSubmit}
+                    submitting={submitting}
+                    submitError={submitError}
                   />
                 )}
                 {isActive && q.type === 'checkboxes' && (
@@ -524,14 +584,12 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
                     value={answers[q.id]}
                     onSelect={(v, done) => {
                       setAnswer(q.id, v);
-                      if (done) {
-                        if (idx === totalQ - 1) {
-                          handleSubmit();
-                        } else {
-                          goNext();
-                        }
-                      }
+                      if (done && idx !== totalQ - 1) goNext();
                     }}
+                    isLast={idx === totalQ - 1}
+                    onSubmit={handleSubmit}
+                    submitting={submitting}
+                    submitError={submitError}
                   />
                 )}
                 {isActive && q.type === 'short_text' && (
@@ -539,7 +597,11 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
                     key={'st-' + q.id}
                     value={answers[q.id]}
                     onChangeValue={(v) => setAnswer(q.id, v)}
-                    onDone={idx === totalQ - 1 ? handleSubmit : goNext}
+                    onDone={goNext}
+                    isLast={idx === totalQ - 1}
+                    onSubmit={handleSubmit}
+                    submitting={submitting}
+                    submitError={submitError}
                   />
                 )}
                 {isActive && q.type === 'email' && (
@@ -549,7 +611,11 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
                     placeholder="Enter your email address"
                     value={answers[q.id]}
                     onChangeValue={(v) => setAnswer(q.id, v)}
-                    onDone={idx === totalQ - 1 ? handleSubmit : goNext}
+                    onDone={goNext}
+                    isLast={idx === totalQ - 1}
+                    onSubmit={handleSubmit}
+                    submitting={submitting}
+                    submitError={submitError}
                   />
                 )}
                 {isActive && q.type === 'long_text' && (
@@ -557,7 +623,11 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
                     key={'lt-' + q.id}
                     value={answers[q.id]}
                     onChangeValue={(v) => setAnswer(q.id, v)}
-                    onDone={idx === totalQ - 1 ? handleSubmit : goNext}
+                    onDone={goNext}
+                    isLast={idx === totalQ - 1}
+                    onSubmit={handleSubmit}
+                    submitting={submitting}
+                    submitError={submitError}
                   />
                 )}
                 {isActive && q.type === 'contact_group' && (
