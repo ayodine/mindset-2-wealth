@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   LogOut, Search, Download, RefreshCw, ChevronDown, ChevronUp,
-  Users, Star, CalendarCheck, TrendingUp, X, Copy, Check, Phone, Mail, Link as LinkIcon, MapPin, Briefcase
+  Users, Star, CalendarCheck, TrendingUp, X, Copy, Check, Phone, Mail, Link as LinkIcon, MapPin, Briefcase, Trash2
 } from 'lucide-react';
 import { supabase } from '../supabase';
 import './AdminDashboard.css';
@@ -116,7 +116,7 @@ function CopyBtn({ text }) {
   );
 }
 
-function DetailPanel({ row, activeTab, onClose, onStatusChange, onNotesChange }) {
+function DetailPanel({ row, activeTab, onClose, onStatusChange, onNotesChange, onDelete }) {
   const [notes, setNotes] = useState(row.notes || '');
   const [saving, setSaving] = useState(false);
 
@@ -226,6 +226,13 @@ function DetailPanel({ row, activeTab, onClose, onStatusChange, onNotesChange })
             {saving ? 'Saving...' : 'Save Notes'}
           </button>
         </div>
+
+        <div className="detail-delete-section">
+          <button className="delete-submission-btn" onClick={() => onDelete(row.id)}>
+            <Trash2 size={16} />
+            <span>Delete Submission</span>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -307,6 +314,18 @@ export default function AdminDashboard() {
   const updateNotes = (id, notes) => {
     setSubmissions(prev => prev.map(s => s.id === id ? { ...s, notes } : s));
     if (selectedRow?.id === id) setSelectedRow(prev => ({ ...prev, notes }));
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this submission? This action cannot be undone.")) return;
+    try {
+      const { error } = await supabase.from(tableName).delete().eq('id', id);
+      if (error) throw error;
+      setSubmissions(prev => prev.filter(s => s.id !== id));
+      setSelectedRow(null);
+    } catch (err) {
+      alert("Failed to delete submission: " + err.message);
+    }
   };
 
   /* computed filtered submissions */
@@ -612,6 +631,7 @@ export default function AdminDashboard() {
           onClose={() => setSelectedRow(null)}
           onStatusChange={updateStatus}
           onNotesChange={updateNotes}
+          onDelete={handleDelete}
         />
       )}
     </div>
