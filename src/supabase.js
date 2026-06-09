@@ -40,7 +40,7 @@ export async function submitFormResponse(answers) {
 
   try {
     // 1. Submit email via Web3Forms (Primary guaranteed delivery channel)
-    const web3FormsKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "d11ddcb6-f66f-4d5f-88ba-9b6126b6ff37";
+    const web3FormsKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "9532810f-9357-4c0c-85cc-446c3073e885";
     const emailResponse = await fetch("https://api.web3forms.com/submit", {
       method: "POST",
       headers: { 
@@ -119,7 +119,7 @@ export async function submitWorkshopResponse(answers) {
 
   try {
     // 1. Submit email via Web3Forms (Primary guaranteed delivery channel)
-    const web3FormsKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "d11ddcb6-f66f-4d5f-88ba-9b6126b6ff37";
+    const web3FormsKey = import.meta.env.VITE_WEB3FORMS_ACCESS_KEY || "9532810f-9357-4c0c-85cc-446c3073e885";
     const emailResponse = await fetch("https://api.web3forms.com/submit", {
       method: "POST",
       headers: { 
