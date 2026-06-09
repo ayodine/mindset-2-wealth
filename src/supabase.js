@@ -30,18 +30,18 @@ export async function submitFormResponse(answers) {
   try {
     const payload = {
       country: answers.q1 || null,
-      trading_duration: answers.q2 || null,
-      profitability_reason: answers.q3 || null,
-      trading_situation: answers.q4 || null,
-      currently_profitable: answers.q5 || null,
-      mentorship_reason: answers.q6 || null,
-      willing_to_follow_process: answers.q7 || null,
-      investment_ready: answers.q8 || null,
-      first_name: answers.q9?.firstName || null,
-      last_name: answers.q9?.lastName || null,
-      email: answers.q9?.email || null,
-      phone: answers.q9?.phone || null,
-      best_time_to_reach: answers.q9?.bestTime || null,
+      primary_financial_goal: answers.q2 || null,
+      current_financial_situation: answers.q3 || null,
+      wealth_mindset_challenge: answers.q4 || null,
+      wealth_meaning: answers.q5 || null,
+      wealth_goal_1_3_years: answers.q6 || null,
+      monthly_save_invest: answers.q7 || null,
+      willing_to_follow_5_sessions: answers.q8 || null,
+      investment_ready_usd4675: answers.q9 || null,
+      first_name: answers.q10?.firstName || null,
+      last_name: answers.q10?.lastName || null,
+      email: answers.q10?.email || null,
+      phone: answers.q10?.phone || null,
     };
 
     const { data, error } = await supabase
@@ -66,22 +66,22 @@ export async function submitFormResponse(answers) {
           },
           body: JSON.stringify({
              access_key: web3FormsKey,
-             subject: `New Mentorship Lead: ${payload.first_name || ''} ${payload.last_name || ''}`,
-             from_name: "Mentorship Application",
+             subject: `New Wealth Lead: ${payload.first_name || ''} ${payload.last_name || ''}`,
+             from_name: "Wealth Roadmap Application",
              replyto: payload.email || undefined, /* Allows clicking "Reply" in gmail to direct reply to the lead */
              "First Name": payload.first_name,
              "Last Name": payload.last_name,
              "Email": payload.email,
              "Phone": payload.phone,
-             "Best Time To Reach": payload.best_time_to_reach,
              "Country": payload.country,
-             "Trading Duration": payload.trading_duration,
-             "Biggest Struggle": payload.profitability_reason,
-             "Trading Situation": payload.trading_situation,
-             "Currently Profitable": payload.currently_profitable,
-             "Why Need Mentorship": payload.mentorship_reason,
-             "Willing to Follow Process": payload.willing_to_follow_process,
-             "Investment Ready": payload.investment_ready
+             "Primary Financial Goal": payload.primary_financial_goal,
+             "Current Financial Situation": payload.current_financial_situation,
+             "Wealth Mindset Challenge": payload.wealth_mindset_challenge,
+             "Meaning of Wealth": payload.wealth_meaning,
+             "1-3 Year Wealth Goal": payload.wealth_goal_1_3_years,
+             "Monthly Save/Invest Amount": payload.monthly_save_invest,
+             "Willing to Follow 5 Sessions": payload.willing_to_follow_5_sessions,
+             "Ready to Invest USD4,675": payload.investment_ready_usd4675
           })
       }).catch(e => console.error("Email notification error:", e));
     } catch (emailErr) {
