@@ -468,6 +468,10 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
   const goNext = useCallback(() => setActiveIndex(i => Math.min(i + 1, totalQ - 1)), [totalQ]);
   const goPrev = useCallback(() => setActiveIndex(i => Math.max(i - 1, 0)), []);
 
+  useEffect(() => {
+    document.title = formTitle;
+  }, [formTitle]);
+
   // Keyboard nav
   useEffect(() => {
     const handler = (e) => {
