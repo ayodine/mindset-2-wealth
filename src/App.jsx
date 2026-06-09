@@ -368,7 +368,7 @@ function CheckboxesInput({ options, value = [], onSelect, isLast, onSubmit, subm
   );
 }
 
-function ContactInput({ fields, value, onChangeValue, onDone, submitting, submitError }) {
+function ContactInput({ fields, value, onChangeValue, onDone, submitting, submitError, isLast, onSubmit }) {
   const ref = useRef(null);
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -376,6 +376,14 @@ function ContactInput({ fields, value, onChangeValue, onDone, submitting, submit
     }, 700);
     return () => clearTimeout(timer);
   }, []);
+
+  const handleClick = () => {
+    if (isLast) {
+      onSubmit();
+    } else {
+      onDone();
+    }
+  };
 
   return (
     <div className="contact-group">
@@ -394,16 +402,24 @@ function ContactInput({ fields, value, onChangeValue, onDone, submitting, submit
           />
         </div>
       ))}
-      {submitError && (
+      {isLast && submitError && (
         <div className="submit-error">{submitError}</div>
       )}
-      <button className="submit-button" onClick={onDone} disabled={submitting}>
-        {submitting ? (
-          <><Loader2 size={20} className="spinner" /> Submitting...</>
-        ) : (
-          'Submit form'
-        )}
-      </button>
+      <div className="ok-button-container" style={isLast ? { flexDirection: 'column', alignItems: 'flex-start', gap: '12px', marginTop: '24px' } : { marginTop: '24px' }}>
+        <button 
+          className={isLast ? "submit-button" : "ok-button"} 
+          onClick={handleClick} 
+          disabled={isLast && submitting}
+          style={isLast ? { marginTop: 0 } : {}}
+        >
+          {isLast ? (
+            submitting ? <><Loader2 size={20} className="spinner" /> Submitting...</> : 'Submit form'
+          ) : (
+            <>{'OK'} <Check size={20} /></>
+          )}
+        </button>
+        {!isLast && <span className="press-enter">press <strong>Enter ↵</strong></span>}
+      </div>
     </div>
   );
 }
@@ -636,7 +652,9 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
                     fields={q.fields}
                     value={answers[q.id]}
                     onChangeValue={(v) => setAnswer(q.id, v)}
-                    onDone={idx === totalQ - 1 ? handleSubmit : goNext}
+                    onDone={goNext}
+                    isLast={idx === totalQ - 1}
+                    onSubmit={handleSubmit}
                     submitting={submitting}
                     submitError={submitError}
                   />

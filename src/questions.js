@@ -121,12 +121,20 @@ export const workshopQuestions = [
   {
     id: "w1",
     type: "contact_group",
-    title: "Organization & Contact Details",
+    title: "About You & Your Organization",
     required: true,
     fields: [
       { id: "fullName", label: "Full Name", type: "text" },
       { id: "organizationName", label: "Organization / Institution Name", type: "text" },
-      { id: "jobTitle", label: "Job Title / Role", type: "text" },
+      { id: "jobTitle", label: "Job Title / Role", type: "text" }
+    ]
+  },
+  {
+    id: "w2",
+    type: "contact_group",
+    title: "Contact & Link Info",
+    required: true,
+    fields: [
       { id: "email", label: "Email Address", type: "email" },
       { id: "websiteLink", label: "Website or Organization Link", type: "text" }
     ]
