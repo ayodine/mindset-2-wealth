@@ -8,8 +8,8 @@
 /* 1. Primitive Colors (The Palette) */
 :root {
   /* Brand */
-  --blue-500: #0055FE;
-  --blue-600: #004adf;
+  --brand-green-500: #0F3D2E;
+  --brand-green-600: #175e47;
   
   /* Grayscale Dark */
   --gray-900: #121212;
@@ -34,8 +34,29 @@
   --font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* 2. Semantic Theme Tokens (Default: Dark Mode) */
+/* 2. Semantic Theme Tokens (Default: Light Mode) */
 :root {
+  --theme-bg: #ffffff;
+  --theme-bg-secondary: #f8f9fa;
+  
+  --theme-text-primary: #121212;
+  --theme-text-secondary: rgba(0, 0, 0, 0.7);
+  --theme-text-tertiary: rgba(0, 0, 0, 0.4);
+  
+  --theme-accent: var(--brand-green-500);
+  --theme-accent-hover: var(--brand-green-600);
+  
+  --theme-error: var(--red-500);
+  
+  --theme-input-bg: rgba(0, 0, 0, 0.04);
+  --theme-input-hover: rgba(0, 0, 0, 0.07);
+  --theme-input-focus-ring: rgba(15, 61, 46, 0.25);
+  
+  --theme-border: rgba(0, 0, 0, 0.12);
+}
+
+/* 3. Dark Mode Overrides */
+:root[data-theme="dark"] {
   --theme-bg: var(--gray-800);
   --theme-bg-secondary: var(--gray-700);
   
@@ -43,36 +64,14 @@
   --theme-text-secondary: var(--gray-400);
   --theme-text-tertiary: var(--gray-600);
   
-  --theme-accent: var(--blue-500);
-  --theme-accent-hover: var(--blue-600);
-  
-  --theme-error: var(--red-500);
+  --theme-accent: var(--brand-green-500);
+  --theme-accent-hover: var(--brand-green-600);
   
   --theme-input-bg: rgba(255, 255, 255, 0.1);
   --theme-input-hover: rgba(255, 255, 255, 0.15);
-  --theme-input-focus-ring: rgba(0, 85, 254, 0.5);
+  --theme-input-focus-ring: rgba(15, 61, 46, 0.5);
   
   --theme-border: rgba(255, 255, 255, 0.2);
-}
-
-/* 3. Light Mode Overrides */
-:root[data-theme="light"] {
-  --theme-bg: var(--light-gray-900);
-  --theme-bg-secondary: var(--light-gray-800);
-  
-  --theme-text-primary: var(--light-gray-100);
-  --theme-text-secondary: var(--light-gray-400);
-  --theme-text-tertiary: var(--light-gray-600);
-  
-  /* You can change the accent color for light mode here if desired */
-  --theme-accent: var(--blue-500);
-  --theme-accent-hover: var(--blue-600);
-  
-  --theme-input-bg: rgba(0, 0, 0, 0.05);
-  --theme-input-hover: rgba(0, 0, 0, 0.08);
-  --theme-input-focus-ring: rgba(0, 85, 254, 0.2);
-  
-  --theme-border: rgba(0, 0, 0, 0.1);
 }
 
 /* ==========================================================================

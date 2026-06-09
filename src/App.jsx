@@ -296,7 +296,7 @@ function App() {
                   justifyContent: 'center',
                   alignItems: 'center',
                   alignSelf: 'center',
-                  boxShadow: '0 4px 14px 0 rgba(0, 85, 254, 0.39)'
+                  boxShadow: '0 4px 14px 0 rgba(15, 61, 46, 0.3)'
                 }}
                 onClick={() => window.open('https://calendly.com/YOUR_CALENDLY_HERE', '_blank')}
               >
