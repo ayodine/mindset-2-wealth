@@ -31,21 +31,76 @@ class ErrorBoundary extends React.Component {
 const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
 function MCInput({ options, value, onSelect }) {
+  const isCustomOther = value && !options.includes(value);
+  const [otherText, setOtherText] = useState(isCustomOther ? value : '');
+  const [showOtherInput, setShowOtherInput] = useState(isCustomOther);
+  const otherInputRef = useRef(null);
+
+  const handleOptionClick = (option) => {
+    if (option === 'Other') {
+      setShowOtherInput(true);
+      setTimeout(() => {
+        if (otherInputRef.current) otherInputRef.current.focus();
+      }, 100);
+    } else {
+      setShowOtherInput(false);
+      setOtherText('');
+      onSelect(option);
+    }
+  };
+
+  const handleOtherSubmit = () => {
+    if (otherText.trim()) {
+      onSelect(otherText.trim());
+    }
+  };
+
   return (
-    <ul className="multiple-choice-list">
-      {options.map((option, i) => (
-        <li
-          key={i}
-          className={'choice-item' + (value === option ? ' selected' : '')}
-          onClick={() => onSelect(option)}
-          style={{ '--index': i }}
-        >
-          <div className="choice-letter">{LETTERS[i]}</div>
-          <div className="choice-text">{option}</div>
-          {value === option && <Check size={20} className="choice-check" />}
-        </li>
-      ))}
-    </ul>
+    <div className="mc-input-container">
+      <ul className="multiple-choice-list">
+        {options.map((option, i) => {
+          const isSelected = option === 'Other' ? showOtherInput : value === option;
+          return (
+            <li
+              key={i}
+              className={'choice-item' + (isSelected ? ' selected' : '')}
+              onClick={() => handleOptionClick(option)}
+              style={{ '--index': i }}
+            >
+              <div className="choice-letter">{LETTERS[i]}</div>
+              <div className="choice-text" style={{ flex: 1 }}>
+                {option === 'Other' && showOtherInput ? (
+                  <input
+                    ref={otherInputRef}
+                    type="text"
+                    className="other-manual-input"
+                    placeholder="Type your answer here..."
+                    value={otherText}
+                    onChange={(e) => setOtherText(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        handleOtherSubmit();
+                      }
+                    }}
+                  />
+                ) : (
+                  option
+                )}
+              </div>
+              {isSelected && <Check size={20} className="choice-check" />}
+            </li>
+          );
+        })}
+      </ul>
+      {showOtherInput && otherText.trim() && (
+        <div className="ok-button-container" style={{ marginTop: '24px' }}>
+          <button className="ok-button" onClick={handleOtherSubmit}>OK <Check size={20} /></button>
+          <span className="press-enter">press <strong>Enter ↵</strong></span>
+        </div>
+      )}
+    </div>
   );
 }
 

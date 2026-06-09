@@ -65,9 +65,15 @@ export const questions = [
   },
   {
     id: "q6",
-    type: "long_text",
-    title: "What is your wealth goal over the next 1-3 years? (e.g. own property, build $200K portfolio, start earning passive income, etc.)",
-    required: true
+    type: "multiple_choice",
+    title: "What is your wealth goal over the next 1-3 years?",
+    required: true,
+    options: [
+      "Own property",
+      "Build $200K portfolio",
+      "Start earning passive income",
+      "Other"
+    ]
   },
   {
     id: "q7",

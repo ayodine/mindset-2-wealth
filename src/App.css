@@ -413,3 +413,14 @@
     left: 20px;
   }
 }
+
+.other-manual-input {
+  width: 100%;
+  font-size: 18px;
+  color: var(--theme-text-primary);
+  border: none;
+  background: transparent;
+  outline: none;
+  border-bottom: 1px solid var(--theme-accent);
+  padding: 2px 0;
+}
