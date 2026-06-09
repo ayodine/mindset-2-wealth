@@ -70,7 +70,7 @@ export const roadmapQuestions = [
     required: true,
     options: [
       "Own property",
-      "Build $200K portfolio",
+      "Build $100K to $1M portfolio",
       "Start earning passive income",
       "Other"
     ]
