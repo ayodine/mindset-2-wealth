@@ -110,11 +110,11 @@ export async function submitWorkshopResponse(answers) {
 
   try {
     const payload = {
-      full_name: answers.w1 || null,
-      organization_name: answers.w2 || null,
-      job_title: answers.w3 || null,
-      email: answers.w4 || null,
-      website_link: answers.w5 || null,
+      full_name: answers.w1?.fullName || null,
+      organization_name: answers.w1?.organizationName || null,
+      job_title: answers.w1?.jobTitle || null,
+      email: answers.w1?.email || null,
+      website_link: answers.w1?.websiteLink || null,
       location: answers.w6 || null,
       expected_attendees: answers.w7 || null,
       session_type: answers.w8 || null,

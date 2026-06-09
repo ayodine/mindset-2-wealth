@@ -120,33 +120,16 @@ export const roadmapQuestions = [
 export const workshopQuestions = [
   {
     id: "w1",
-    type: "short_text",
-    title: "Full Name",
-    required: true
-  },
-  {
-    id: "w2",
-    type: "short_text",
-    title: "Organization / Institution Name",
-    required: true
-  },
-  {
-    id: "w3",
-    type: "short_text",
-    title: "Job Title / Role",
-    required: true
-  },
-  {
-    id: "w4",
-    type: "email",
-    title: "Email Address",
-    required: true
-  },
-  {
-    id: "w5",
-    type: "short_text",
-    title: "Website or Organization Link",
-    required: false
+    type: "contact_group",
+    title: "Organization & Contact Details",
+    required: true,
+    fields: [
+      { id: "fullName", label: "Full Name", type: "text" },
+      { id: "organizationName", label: "Organization / Institution Name", type: "text" },
+      { id: "jobTitle", label: "Job Title / Role", type: "text" },
+      { id: "email", label: "Email Address", type: "email" },
+      { id: "websiteLink", label: "Website or Organization Link", type: "text" }
+    ]
   },
   {
     id: "w6",

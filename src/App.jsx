@@ -492,7 +492,14 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
                     key={'drop-' + q.id}
                     options={q.options}
                     value={answers[q.id]}
-                    onSelect={(v) => { setAnswer(q.id, v); goNext(); }}
+                    onSelect={(v) => {
+                      setAnswer(q.id, v);
+                      if (idx === totalQ - 1) {
+                        handleSubmit();
+                      } else {
+                        goNext();
+                      }
+                    }}
                   />
                 )}
                 {isActive && q.type === 'multiple_choice' && (
@@ -500,7 +507,14 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
                     key={'mc-' + q.id}
                     options={q.options}
                     value={answers[q.id]}
-                    onSelect={(v) => { setAnswer(q.id, v); setTimeout(goNext, 400); }}
+                    onSelect={(v) => {
+                      setAnswer(q.id, v);
+                      if (idx === totalQ - 1) {
+                        setTimeout(handleSubmit, 400);
+                      } else {
+                        setTimeout(goNext, 400);
+                      }
+                    }}
                   />
                 )}
                 {isActive && q.type === 'checkboxes' && (
@@ -510,7 +524,13 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
                     value={answers[q.id]}
                     onSelect={(v, done) => {
                       setAnswer(q.id, v);
-                      if (done) goNext();
+                      if (done) {
+                        if (idx === totalQ - 1) {
+                          handleSubmit();
+                        } else {
+                          goNext();
+                        }
+                      }
                     }}
                   />
                 )}
@@ -519,7 +539,7 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
                     key={'st-' + q.id}
                     value={answers[q.id]}
                     onChangeValue={(v) => setAnswer(q.id, v)}
-                    onDone={goNext}
+                    onDone={idx === totalQ - 1 ? handleSubmit : goNext}
                   />
                 )}
                 {isActive && q.type === 'email' && (
@@ -529,7 +549,7 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
                     placeholder="Enter your email address"
                     value={answers[q.id]}
                     onChangeValue={(v) => setAnswer(q.id, v)}
-                    onDone={goNext}
+                    onDone={idx === totalQ - 1 ? handleSubmit : goNext}
                   />
                 )}
                 {isActive && q.type === 'long_text' && (
@@ -546,7 +566,7 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
                     fields={q.fields}
                     value={answers[q.id]}
                     onChangeValue={(v) => setAnswer(q.id, v)}
-                    onDone={handleSubmit}
+                    onDone={idx === totalQ - 1 ? handleSubmit : goNext}
                     submitting={submitting}
                     submitError={submitError}
                   />
