@@ -59,6 +59,21 @@ function MCInput({ options, value, onSelect, isLast, onSubmit, submitting, submi
     }
   };
 
+  const handleSubmitClick = () => {
+    if (showOtherInput) {
+      if (otherText.trim()) {
+        onSelect(otherText.trim());
+        onSubmit(otherText.trim());
+      }
+    } else {
+      onSubmit();
+    }
+  };
+
+  const canShowSubmit = isLast && (
+    (value && !showOtherInput) || (showOtherInput && otherText.trim())
+  );
+
   return (
     <div className="mc-input-container">
       <ul className="multiple-choice-list">
@@ -85,7 +100,11 @@ function MCInput({ options, value, onSelect, isLast, onSubmit, submitting, submi
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
                         e.preventDefault();
-                        handleOtherSubmit();
+                        if (isLast) {
+                          handleSubmitClick();
+                        } else {
+                          handleOtherSubmit();
+                        }
                       }
                     }}
                   />
@@ -104,10 +123,10 @@ function MCInput({ options, value, onSelect, isLast, onSubmit, submitting, submi
           <span className="press-enter">press <strong>Enter ↵</strong></span>
         </div>
       )}
-      {value && isLast && (
+      {canShowSubmit && (
         <div className="ok-button-container" style={{ marginTop: '24px', flexDirection: 'column', alignItems: 'flex-start', gap: '12px' }}>
           {submitError && <div className="submit-error">{submitError}</div>}
-          <button className="submit-button" onClick={onSubmit} disabled={submitting} style={{ marginTop: 0 }}>
+          <button className="submit-button" onClick={handleSubmitClick} disabled={submitting} style={{ marginTop: 0 }}>
             {submitting ? (
               <><Loader2 size={20} className="spinner" /> Submitting...</>
             ) : (
@@ -478,10 +497,14 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
 
   const setAnswer = (id, val) => setAnswers(prev => ({ ...prev, [id]: val }));
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (finalValue) => {
     setSubmitting(true);
     setSubmitError(null);
-    const result = await onSubmit(answers);
+    const activeQuestion = questions[activeIndex];
+    const finalAnswers = finalValue !== undefined 
+      ? { ...answers, [activeQuestion.id]: finalValue }
+      : answers;
+    const result = await onSubmit(finalAnswers);
     setSubmitting(false);
     if (result.success) {
       setSubmitted(true);
