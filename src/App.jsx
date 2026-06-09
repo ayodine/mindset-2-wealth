@@ -523,7 +523,7 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
                     }}
                     onClick={() => window.open('https://calendly.com/thefisayo/coaching', '_blank')}
                   >
-                    Book Your Strategy Call
+                    Book your Wealth Roadmap Call
                   </button>
                 </>
               ) : (
@@ -552,7 +552,7 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
                     }}
                     onClick={() => window.open('https://calendly.com/thefisayo/coaching', '_blank')}
                   >
-                    Book Your Strategy Call
+                    Book your Financial Wellness Workshop
                   </button>
                 </>
               )}
