@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ChevronUp, ChevronDown, Check, Loader2 } from 'lucide-react';
 import { roadmapQuestions, workshopQuestions } from './questions';
-import { submitFormResponse, submitWorkshopResponse } from './supabase';
+import { supabase, submitFormResponse, submitWorkshopResponse } from './supabase';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 import AdminResetPassword from './pages/AdminResetPassword';
