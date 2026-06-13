@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ChevronUp, ChevronDown, Check, Loader2 } from 'lucide-react';
 import { roadmapQuestions, workshopQuestions } from './questions';
 import { submitFormResponse, submitWorkshopResponse } from './supabase';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
+import AdminResetPassword from './pages/AdminResetPassword';
 import ProtectedRoute from './components/ProtectedRoute';
 import './App.css';
 
@@ -728,6 +729,48 @@ function QuestionnaireForm({ questions, onSubmit, formTitle, type }) {
 /* ──────────────────────── Wrapped App with Router ──────────────────────── */
 
 export default function WrappedApp() {
+  const [roadmapQ, setRoadmapQ] = useState(roadmapQuestions);
+  const [workshopQ, setWorkshopQ] = useState(workshopQuestions);
+  const navigate = useNavigate();
+
+  // Intercept password reset links redirecting to Site URL
+  useEffect(() => {
+    // 1. Intercept hash fragment instantly
+    if (window.location.hash && window.location.hash.includes('type=recovery')) {
+      navigate('/admin/reset-password');
+    }
+
+    // 2. Intercept auth state change event
+    if (supabase) {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+        if (event === 'PASSWORD_RECOVERY') {
+          navigate('/admin/reset-password');
+        }
+      });
+      return () => subscription.unsubscribe();
+    }
+  }, [navigate]);
+
+  useEffect(() => {
+    async function loadQuestions() {
+      if (!supabase) return;
+      try {
+        const { data, error } = await supabase
+          .from('form_questions')
+          .select('*');
+        if (data && !error) {
+          const r = data.find(item => item.id === 'roadmap');
+          const w = data.find(item => item.id === 'workshop');
+          if (r && r.questions) setRoadmapQ(r.questions);
+          if (w && w.questions) setWorkshopQ(w.questions);
+        }
+      } catch (err) {
+        console.warn('Failed to load questions from Supabase, using local defaults:', err);
+      }
+    }
+    loadQuestions();
+  }, []);
+
   return (
     <ErrorBoundary>
       <Routes>
@@ -736,7 +779,7 @@ export default function WrappedApp() {
           path="/" 
           element={
             <QuestionnaireForm 
-              questions={roadmapQuestions} 
+              questions={roadmapQ} 
               onSubmit={submitFormResponse} 
               formTitle="Wealth Roadmap Questionnaire Form" 
               type="roadmap" 
@@ -747,7 +790,7 @@ export default function WrappedApp() {
           path="/workshop" 
           element={
             <QuestionnaireForm 
-              questions={workshopQuestions} 
+              questions={workshopQ} 
               onSubmit={submitWorkshopResponse} 
               formTitle="Financial Wellness Workshop Inquiry Form" 
               type="workshop" 
@@ -757,6 +800,7 @@ export default function WrappedApp() {
 
         {/* Admin routes */}
         <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin/reset-password" element={<AdminResetPassword />} />
         <Route
           path="/admin"
           element={
