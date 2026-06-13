@@ -288,11 +288,34 @@ function FormEditor({ roadmapQ, workshopQ, onSaveRoadmap, onSaveWorkshop }) {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
 
+  const [lastRoadmapQ, setLastRoadmapQ] = useState(null);
+  const [lastWorkshopQ, setLastWorkshopQ] = useState(null);
+
+  // Sync with parent props when they change from initial load
+  useEffect(() => {
+    if (roadmapQ !== lastRoadmapQ) {
+      setLastRoadmapQ(roadmapQ);
+      if (selectedForm === 'roadmap') {
+        setQuestions(JSON.parse(JSON.stringify(roadmapQ)));
+      }
+    }
+  }, [roadmapQ, lastRoadmapQ, selectedForm]);
+
+  useEffect(() => {
+    if (workshopQ !== lastWorkshopQ) {
+      setLastWorkshopQ(workshopQ);
+      if (selectedForm === 'workshop') {
+        setQuestions(JSON.parse(JSON.stringify(workshopQ)));
+      }
+    }
+  }, [workshopQ, lastWorkshopQ, selectedForm]);
+
+  // When form toggle changes, load correct questions set and clear message
   useEffect(() => {
     const initialQ = selectedForm === 'roadmap' ? roadmapQ : workshopQ;
     setQuestions(JSON.parse(JSON.stringify(initialQ)));
     setMessage(null);
-  }, [selectedForm, roadmapQ, workshopQ]);
+  }, [selectedForm]);
 
   const handleTitleChange = (idx, newTitle) => {
     setQuestions(prev => prev.map((q, i) => i === idx ? { ...q, title: newTitle } : q));
